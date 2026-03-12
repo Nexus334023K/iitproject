@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-python-multipart
-pydantic
-pdfplumber
-requests
-tavily-python
-python-dotenv
-fpdf2
