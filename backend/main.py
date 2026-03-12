@@ -28,9 +28,9 @@ app.add_middleware(
 UPLOAD_DIR = "/tmp/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the Intelli-Credit Engine API"}
+@app.get("/api/health")
+async def health():
+    return {"status": "healthy", "message": "Intelli-Credit Engine API is running"}
 
 @app.post("/analyze/gst")
 async def analyze_gst(file: UploadFile = File(...)):
