@@ -9,11 +9,6 @@
       "destination": "/frontend/dist/$1"
     }
   ],
-  "functions": {
-    "api/index.py": {
-      "runtime": "vercel-python@0.10.x"
-    }
-  },
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist"
 }
