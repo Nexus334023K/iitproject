@@ -66,7 +66,8 @@ const UploadModal = ({ isOpen, onClose, onUploadSuccess }: UploadModalProps) => 
           const formData = new FormData();
           formData.append('file', file);
           
-          const response = await fetch('http://localhost:8000/analyze/pdf', {
+          const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+          const response = await fetch(`${baseUrl}/analyze/pdf`, {
             method: 'POST',
             body: formData,
           });

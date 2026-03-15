@@ -159,7 +159,8 @@ const MarketIntelligence = () => {
     setIsQuerying(true);
     
     try {
-      const res = await fetch(`http://localhost:8000/research?company=${encodeURIComponent(queryInput)}`);
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const res = await fetch(`${baseUrl}/research?company=${encodeURIComponent(queryInput)}`);
       const data = await res.json();
       
       if (data.research && data.research.synthesis) {
