@@ -6,7 +6,7 @@ import { Upload, X, FileText, CheckCircle2, AlertCircle, Loader2, ShieldCheck } 
 interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUploadSuccess: (fileNames: string[]) => void;
+  onUploadSuccess: (fileNames: string[], analysisData?: any[]) => void;
 }
 
 const UploadModal = ({ isOpen, onClose, onUploadSuccess }: UploadModalProps) => {
@@ -53,21 +53,54 @@ const UploadModal = ({ isOpen, onClose, onUploadSuccess }: UploadModalProps) => 
     }
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (files.length === 0) return;
     setUploading(true);
-    // Simulate upload delay
-    setTimeout(() => {
+    
+    try {
+      const results = [];
+      const uploadedNames = [];
+      
+      for (const file of files) {
+        if (file.name.endsWith('.pdf')) {
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          const response = await fetch('http://localhost:8000/analyze/pdf', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            results.push(data.analysis);
+            uploadedNames.push(file.name);
+          } else {
+             // Fallback/Error handling
+             results.push(null);
+             uploadedNames.push(file.name);
+          }
+        } else {
+          // Non-PDF files (CSV, etc) bypass the PDF parser for now
+          results.push(null);
+          uploadedNames.push(file.name);
+        }
+      }
+
       setUploading(false);
       setSuccess(true);
-      onUploadSuccess(files.map(f => f.name));
+      onUploadSuccess(uploadedNames, results);
+      
       setTimeout(() => {
         setSuccess(false);
         setFiles([]);
         onClose();
       }, 2000);
-    }, 3000);
 
+    } catch (e) {
+      console.error("Upload error", e);
+      setUploading(false);
+    }
   };
 
   const removeFile = (index: number) => {

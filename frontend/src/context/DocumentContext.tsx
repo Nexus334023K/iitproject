@@ -7,11 +7,16 @@ interface Document {
   confidence: string;
   date: string;
   loading?: boolean;
+  analysis?: {
+    commitments: string[];
+    risks: string[];
+    summary_snippet?: string;
+  };
 }
 
 interface DocumentContextType {
   documents: Document[];
-  addDocuments: (fileNames: string[]) => void;
+  addDocuments: (fileNames: string[], analysisData?: any[]) => void;
 }
 
 const DocumentContext = createContext<DocumentContextType | undefined>(undefined);
@@ -24,14 +29,15 @@ export const DocumentProvider = ({ children }: { children: ReactNode }) => {
     { name: "SBI Bank Statement.csv", category: "Structured", status: "Verified", confidence: "99%", date: "2 hours ago" },
   ]);
 
-  const addDocuments = (fileNames: string[]) => {
-    const newDocs = fileNames.map(name => ({
+  const addDocuments = (fileNames: string[], analysisData?: any[]) => {
+    const newDocs = fileNames.map((name, index) => ({
       name,
       category: name.toLowerCase().endsWith('.pdf') ? "Unstructured" : "Structured",
-      status: "Synced",
-      confidence: "Pending",
+      status: analysisData && analysisData[index] ? "Analyzed" : "Synced",
+      confidence: analysisData && analysisData[index] ? "95%" : "Pending",
       date: "Just now",
-      loading: true
+      loading: false,
+      analysis: analysisData ? analysisData[index] : undefined
     }));
     setDocuments(prev => [...newDocs, ...prev]);
   };

@@ -7,6 +7,11 @@ backend/venv/
 backend/__pycache__/
 backend/uploads/
 *.pyc
+.env
+backend/.env
+frontend/.env
+*.txt
+*.log
 
 # IDEs and System files
 .vscode/

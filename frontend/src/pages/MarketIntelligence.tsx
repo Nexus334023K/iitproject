@@ -13,7 +13,10 @@ import {
   Eye,
   Search,
   MessageSquare,
-  Cpu
+  Cpu,
+  Zap,
+  ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -34,6 +37,36 @@ const MarketIntelligence = () => {
   const [activeSector, setActiveSector] = useState('Energy');
   const [selectedSectorDetails, setSelectedSectorDetails] = useState<any>(null);
   const [selectedNews, setSelectedNews] = useState<any>(null);
+  
+  const [newsFeeds, setNewsFeeds] = useState([
+    { 
+      id: 1, 
+      title: "Rising crude prices impacting chemical sector margins", 
+      sentiment: 'Negative', 
+      score: -0.65, 
+      time: '12 mins ago',
+      impact: 'Sector Wide',
+      breakdown: "Our NLP swarm detected negative sentiment clusters specifically relating to 'feedstock' and 'price pass-through'. 42 entities in the chemical cluster are flagged for margin compression."
+    },
+    { 
+      id: 2, 
+      title: "Adani Green secures $1.2B for solar projects expansion", 
+      sentiment: 'Positive', 
+      score: 0.82, 
+      time: '1 hour ago',
+      impact: 'Entity Specific',
+      breakdown: "Major positive spike in 'capital commitment' and 'institutional confidence'. This event offsets the previous legal headwinds for the parent entity by 15% in our risk tracker."
+    },
+    { 
+      id: 3, 
+      title: "RBI signals potential rate hike in next policy cycle", 
+      sentiment: 'Neutral', 
+      score: -0.12, 
+      time: '3 hours ago',
+      impact: 'Macro',
+      breakdown: "Sentiment is slightly weighted towards caution. Markets had already priced in a 25bps hike, but the commentary on 'prolonged tightening' is causing subtle panic in highly-leveraged mid-caps."
+    }
+  ]);
 
   const sectorMetrics = [
     { 
@@ -115,38 +148,41 @@ const MarketIntelligence = () => {
         "Inventory turnover rates declining in fashion segment.",
         "Omni-channel transition costs weighing on EBITDA margins."
       ]
-    },
+    }
   ];
 
-  const newsFeeds = [
-    { 
-      id: 1, 
-      title: "Rising crude prices impacting chemical sector margins", 
-      sentiment: 'Negative', 
-      score: -0.65, 
-      time: '12 mins ago',
-      impact: 'Sector Wide',
-      breakdown: "Our NLP swarm detected negative sentiment clusters specifically relating to 'feedstock' and 'price pass-through'. 42 entities in the chemical cluster are flagged for margin compression."
-    },
-    { 
-      id: 2, 
-      title: "Adani Green secures $1.2B for solar projects expansion", 
-      sentiment: 'Positive', 
-      score: 0.82, 
-      time: '1 hour ago',
-      impact: 'Entity Specific',
-      breakdown: "Major positive spike in 'capital commitment' and 'institutional confidence'. This event offsets the previous legal headwinds for the parent entity by 15% in our risk tracker."
-    },
-    { 
-      id: 3, 
-      title: "RBI signals potential rate hike in next policy cycle", 
-      sentiment: 'Neutral', 
-      score: -0.12, 
-      time: '3 hours ago',
-      impact: 'Macro',
-      breakdown: "Sentiment is slightly weighted towards caution. Markets had already priced in a 25bps hike, but the commentary on 'prolonged tightening' is causing subtle panic in highly-leveraged mid-caps."
-    },
-  ];
+  const [queryInput, setQueryInput] = useState('');
+  const [isQuerying, setIsQuerying] = useState(false);
+
+  const handleQuery = async () => {
+    if (!queryInput.trim()) return;
+    setIsQuerying(true);
+    
+    try {
+      const res = await fetch(`http://localhost:8000/research?company=${encodeURIComponent(queryInput)}`);
+      const data = await res.json();
+      
+      if (data.research && data.research.synthesis) {
+        const newFeed = {
+          id: Date.now(),
+          title: `AI Swarm Analysis: ${queryInput}`,
+          sentiment: data.research.synthesis.overall_sentiment || 'Neutral',
+          score: data.research.synthesis.overall_sentiment === 'Positive' ? 0.85 : data.research.synthesis.overall_sentiment === 'Negative' ? -0.7 : 0.1,
+          time: 'Just now',
+          impact: data.research.synthesis.risk_flags && data.research.synthesis.risk_flags.length > 0 ? 'High Risk' : 'Standard View',
+          breakdown: `Key Highlights: ${data.research.synthesis.key_highlights?.join('. ')}. Risks: ${data.research.synthesis.risk_flags?.join('. ')}`
+        };
+        
+        setNewsFeeds(prev => [newFeed, ...prev]);
+        setSelectedNews(newFeed);
+      }
+    } catch (e) {
+      console.error("Query failed", e);
+    } finally {
+      setIsQuerying(false);
+      setQueryInput('');
+    }
+  };
 
   const macroData = [
     { month: 'Jan', gdp: 6.8, inflation: 5.2 },
@@ -182,14 +218,35 @@ const MarketIntelligence = () => {
         </div>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem', marginBottom: '2rem' }}>
-        <IntelligenceCard title="Global Risk Index" value="4.2" trend="-0.3" icon={<Activity color="var(--primary)" />} />
-        <IntelligenceCard title="Sentiment Pulse" value="Neutral" trend="+12%" icon={<TrendingUp color="var(--secondary)" />} />
-        <IntelligenceCard title="Critical Alerts" value="03" trend="Sector: Fin" icon={<AlertTriangle color="var(--accent)" />} />
-      </div>
+      <section className="hero-stats" style={{ marginBottom: '2rem' }}>
+        <IntelligenceCard 
+          title="Market Sentiment" 
+          value="Bullish" 
+          trend="+12.4%" 
+          icon={<Globe color="var(--primary)" />} 
+        />
+        <IntelligenceCard 
+          title="Risk Volatility" 
+          value="Medium" 
+          trend="-2.1%" 
+          icon={<AlertTriangle color="var(--accent)" />} 
+        />
+        <IntelligenceCard 
+          title="Neural Confidence" 
+          value="94.8%" 
+          trend="Stable" 
+          icon={<Cpu color="var(--secondary)" />} 
+        />
+        <IntelligenceCard 
+          title="Signal Strength" 
+          value="High" 
+          trend="+5.2%" 
+          icon={<Zap color="#fbbf24" />} 
+        />
+      </section>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem' }}>
-        <div className="glass-panel" style={{ minHeight: '400px' }}>
+      <div className="responsive-grid">
+        <div className="glass-panel" style={{ padding: '2.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
             <h3>Strategic Sector Heatmap</h3>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -343,6 +400,9 @@ const MarketIntelligence = () => {
             <div style={{ position: 'relative', maxWidth: '500px', margin: '0 auto' }}>
               <input 
                 type="text" 
+                value={queryInput}
+                onChange={(e) => setQueryInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleQuery()}
                 placeholder="Ask about 'Reliance margins vs sector' or 'Impact of FED rate hike'..."
                 style={{ 
                   width: '100%', 
@@ -356,6 +416,8 @@ const MarketIntelligence = () => {
                 }}
               />
               <button 
+                onClick={handleQuery}
+                disabled={isQuerying}
                 className="btn-primary" 
                 style={{ 
                   position: 'absolute', 
@@ -363,16 +425,17 @@ const MarketIntelligence = () => {
                   top: '0.5rem', 
                   bottom: '0.5rem',
                   padding: '0 1.5rem',
-                  borderRadius: '1.2rem'
+                  borderRadius: '1.2rem',
+                  opacity: isQuerying ? 0.5 : 1
                 }}
               >
-                Query Swarm
+                {isQuerying ? 'Querying...' : 'Query Swarm'}
               </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

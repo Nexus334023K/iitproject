@@ -1,3 +1,11 @@
+import os
+from dotenv import load_dotenv
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+load_dotenv()
+
 class ScoringEngine:
     """Engine for summarizing the 5 Cs of Credit and suggesting loan terms."""
     
@@ -9,6 +17,10 @@ class ScoringEngine:
             "collateral": 0.15,
             "conditions": 0.15
         }
+        self.llm = ChatGoogleGenerativeAI(
+            model="gemini-1.5-flash",
+            temperature=0,
+        )
 
     def calculate_score(self, data: dict):
         # High-level scoring logic based on 5 Cs
@@ -40,9 +52,24 @@ class ScoringEngine:
         }
 
     def generate_explanation(self, final_score, scores):
-        if final_score > 65:
-            return f"Credit approved with a strong score of {final_score:.1f}. GST flows indicate high capacity."
-        else:
-            low_c = min(scores, key=scores.get)
-            return f"Credit rejected due to high risk in {low_c}."
+        prompt = PromptTemplate.from_template(
+            "You are a Senior Credit Officer at a bank.\n"
+            "Based on the following 5 Cs credit scores and the final aggregate score, "
+            "write a 2-sentence executive summary explaining the credit decision (approve if >65, else reject).\n\n"
+            "Final Score: {final_score}\n"
+            "Component Scores: {scores}\n\n"
+            "Provide the explanation in a professional tone without any special formatting."
+        )
+        chain = prompt | self.llm | StrOutputParser()
+        
+        try:
+            return chain.invoke({"final_score": final_score, "scores": scores}).strip()
+        except Exception as e:
+            print(f"Scoring LLM Error: {e}")
+            if final_score > 65:
+                return f"Credit approved with a strong score of {final_score:.1f}. GST flows indicate high capacity."
+            else:
+                low_c = min(scores, key=scores.get)
+                return f"Credit rejected due to high risk in {low_c}."
+
 

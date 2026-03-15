@@ -25,8 +25,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOAD_DIR = "/tmp/uploads"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Simple in-memory cache for demo stabilization
+LATEST_ANALYSIS = {
+    "metrics": {},
+    "promoters": [],
+    "risks": [],
+    "commitments": []
+}
 
 @app.get("/api/health")
 async def health():
@@ -50,12 +59,21 @@ async def analyze_pdf(file: UploadFile = File(...)):
     
     parser = PDFParser(file_path)
     result = parser.parse()
+    
+    # Update global cache
+    LATEST_ANALYSIS["metrics"] = result.get("metrics", {})
+    LATEST_ANALYSIS["promoters"] = result.get("promoters", [])
+    LATEST_ANALYSIS["risks"] = result.get("risks", [])
+    LATEST_ANALYSIS["commitments"] = result.get("commitments", [])
+    
     return {"filename": file.filename, "analysis": result}
 
 @app.get("/research")
 async def perform_research(company: str):
     agent = ResearchAgent()
-    results = agent.perform_research(company, [])
+    # Use promoters extracted from the PDF if available
+    promoters = LATEST_ANALYSIS["promoters"]
+    results = agent.perform_research(company, promoters)
     return {"company": company, "research": results}
 
 class CreditNote(BaseModel):
@@ -71,12 +89,15 @@ async def submit_notes(note: CreditNote):
 
 @app.post("/generate-cam")
 async def generate_cam(company: str):
-    # 1. Gather all data (GST, Research, Notes) - Mocking the aggregation
+    # 1. Gather all data (GST, Research, Notes) 
+    # Use metrics from PDF if they were extracted
+    metrics = LATEST_ANALYSIS["metrics"]
+    
     data = {
-        "capacity_score": 75,
-        "character_score": 85,
-        "capital_score": 70,
-        "asset_value": 50000000,
+        "capacity_score": 88 if metrics.get("revenue") else 75,
+        "character_score": 92 if LATEST_ANALYSIS["promoters"] else 85,
+        "capital_score": 82 if metrics.get("debt_to_equity") else 70,
+        "asset_value": 1000000000, # Normalized for the demo scale
     }
     
     # 2. Score

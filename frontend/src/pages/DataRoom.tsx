@@ -9,8 +9,8 @@ const DataRoom = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const { documents, addDocuments } = useDocuments();
 
-  const handleUploadSuccess = (fileNames: string[]) => {
-    addDocuments(fileNames);
+  const handleUploadSuccess = (fileNames: string[], analysisData?: any[]) => {
+    addDocuments(fileNames, analysisData);
   };
 
   return (
@@ -23,10 +23,10 @@ const DataRoom = () => {
       
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
         <div>
-          <h1 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '0.5rem', background: 'var(--grad-main)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-2px' }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '0.5rem', background: 'var(--grad-main)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-2px' }}>
             Secure Data Vault
           </h1>
-          <p style={{ color: 'var(--text-dim)', fontSize: '1.2rem', fontWeight: 500 }}>High-fidelity repository for multi-pillar corporate intelligence.</p>
+          <p style={{ color: 'var(--text-dim)', fontSize: '1rem', fontWeight: 500 }}>High-fidelity repository for multi-pillar corporate intelligence.</p>
         </div>
         <motion.button 
           whileHover={{ y: -5, boxShadow: '0 20px 40px -10px rgba(139, 92, 246, 0.5)' }}
@@ -39,30 +39,32 @@ const DataRoom = () => {
         </motion.button>
       </header>
 
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem', marginBottom: '3rem' }}>
-        <DataCategory title="Structured Vectors" count={24 + documents.filter(d => d.category === 'Structured').length - 2} icon={<Database color="var(--primary)" />} gradient="var(--primary)" />
-        <DataCategory title="Neural Reports" count={12 + documents.filter(d => d.category === 'Unstructured').length - 1} icon={<FileText color="var(--secondary)" />} gradient="var(--secondary)" />
+      <section className="hero-stats" style={{ marginBottom: '3rem' }}>
+        <DataCategory title="Structured Vectors" count={Math.max(0, 24 + documents.filter(d => d.category === 'Structured').length - 2)} icon={<Database color="var(--primary)" />} gradient="var(--primary)" />
+        <DataCategory title="Neural Reports" count={Math.max(0, 12 + documents.filter(d => d.category === 'Unstructured').length - 1)} icon={<FileText color="var(--secondary)" />} gradient="var(--secondary)" />
         <DataCategory title="Swarm Filings" count={8} icon={<CheckCircle2 color="var(--accent)" />} gradient="var(--accent)" />
       </section>
 
-      <div className="glass-panel" style={{ padding: '2.5rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--glass-border)' }}>
+      <div className="glass-panel" style={{ padding: '2rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--glass-border)', overflow: 'hidden' }}>
         <h3 style={{ marginBottom: '2.5rem', fontSize: '1.5rem', fontWeight: 800 }}>Neural Ingestion History</h3>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ textAlign: 'left', color: 'var(--text-dim)', fontSize: '0.85rem', borderBottom: '1px solid var(--glass-border)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              <th style={{ padding: '1.5rem 1rem' }}>Vector Identity</th>
-              <th>Intelligence Category</th>
-              <th>Neural Status</th>
-              <th>Sync Confidence</th>
-              <th>Ingestion Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {documents.map((doc, index) => (
-              <TableRow key={index} {...doc} />
-            ))}
-          </tbody>
-        </table>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+            <thead>
+              <tr style={{ textAlign: 'left', color: 'var(--text-dim)', fontSize: '0.85rem', borderBottom: '1px solid var(--glass-border)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <th style={{ padding: '1.5rem 1rem' }}>Vector Identity</th>
+                <th>Intelligence Category</th>
+                <th>Neural Status</th>
+                <th>Sync Confidence</th>
+                <th>Ingestion Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {documents.map((doc, index) => (
+                <TableRow key={index} {...doc} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -85,7 +87,7 @@ const DataCategory = ({ title, count, icon, gradient }: { title: string, count: 
   </motion.div>
 );
 
-const TableRow = ({ name, category, status, confidence, date, warning = false, loading = false }: any) => (
+const TableRow = ({ name, category, status, confidence, date, warning = false, loading = false, analysis }: any) => (
   <motion.tr 
     whileHover={{ background: 'rgba(255,255,255,0.02)' }}
     style={{ borderBottom: '1px solid var(--glass-border)', fontSize: '1rem', transition: 'background 0.2s ease' }}
@@ -94,7 +96,19 @@ const TableRow = ({ name, category, status, confidence, date, warning = false, l
       <div style={{ padding: '0.6rem', background: 'rgba(255,255,255,0.05)', borderRadius: '0.6rem' }}>
         <FileText size={18} color="var(--primary)" />
       </div>
-      <span style={{ fontWeight: 800 }}>{name}</span>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontWeight: 800 }}>{name}</span>
+          {analysis && analysis.risks && analysis.risks.length > 0 && (
+            <span style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.2rem' }}>
+              Detected Risks: {analysis.risks.join(', ')}
+            </span>
+          )}
+          {analysis && analysis.commitments && analysis.commitments.length > 0 && (
+            <span style={{ fontSize: '0.75rem', color: '#4ade80', marginTop: '0.1rem' }}>
+              Commitments: {analysis.commitments.join(', ')}
+            </span>
+          )}
+      </div>
     </td>
     <td style={{ color: 'var(--text-dim)', fontWeight: 600 }}>{category}</td>
     <td>

@@ -9,7 +9,9 @@ import {
   Globe,
   PieChart as PieIcon,
   BarChart as BarIcon,
-  Layout
+  Layout,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 import { 
   PieChart, 
@@ -33,13 +35,13 @@ const sectorData = [
   { name: 'Others', value: 90, color: 'var(--text-dim)' },
 ];
 
-const riskTrends = [
-  { month: 'Oct', risk: 65, limit: 1100 },
-  { month: 'Nov', risk: 62, limit: 1150 },
-  { month: 'Dec', risk: 68, limit: 1200 },
-  { month: 'Jan', risk: 72, limit: 1210 },
-  { month: 'Feb', risk: 70, limit: 1230 },
-  { month: 'Mar', risk: 74, limit: 1240 },
+const decisionData = [
+  { month: 'Oct', approved: 85, rejected: 15 },
+  { month: 'Nov', approved: 78, rejected: 22 },
+  { month: 'Dec', approved: 92, rejected: 8 },
+  { month: 'Jan', approved: 88, rejected: 12 },
+  { month: 'Feb', approved: 74, rejected: 26 },
+  { month: 'Mar', approved: 82, rejected: 18 },
 ];
 
 const Dashboard = () => {
@@ -67,14 +69,16 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <section className="hero-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
-        <StatCard title="Total Swarm Exposure" value="₹1,240 Cr" delta="+8.4%" icon={<Landmark color="var(--primary)" />} gradient="var(--primary)" />
-        <StatCard title="System Health" value="98.2%" delta="Prime" icon={<ShieldCheck color="var(--secondary)" />} gradient="var(--secondary)" />
-        <StatCard title="Priority Alerts" value="03" delta="+1" icon={<AlertTriangle color="var(--accent)" />} warning gradient="var(--accent)" />
+      <section className="hero-stats" style={{ marginBottom: '2rem' }}>
+        <StatCard title="Total Swarm Exposure" value="₹10.24L Cr" delta="+12.5%" icon={<Landmark color="var(--primary)" />} gradient="var(--primary)" />
+        <StatCard title="EBITDA Intelligence" value="₹1.65L Cr" delta="Optimal" icon={<ShieldCheck color="var(--secondary)" />} gradient="var(--secondary)" />
+        <StatCard title="Acceptance Rate" value="68.5%" delta="+2.1%" icon={<CheckCircle2 color="#4ade80" />} gradient="#4ade80" />
+        <StatCard title="Rejection Rate" value="12.2%" delta="-0.5%" icon={<AlertCircle color="var(--accent)" />} gradient="var(--accent)" />
+        <StatCard title="Priority Alerts" value="02" delta="-1" icon={<AlertTriangle color="var(--accent)" />} warning gradient="var(--accent)" />
       </section>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-        <div className="glass-panel" style={{ minHeight: '500px', border: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.02)' }}>
+      <div className="responsive-grid">
+        <div className="glass-panel" style={{ minHeight: '400px', border: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.02)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <PieIcon size={24} color="var(--primary)" />
@@ -108,38 +112,31 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="glass-panel" style={{ minHeight: '500px', border: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.02)' }}>
+        <div className="glass-panel" style={{ minHeight: '400px', border: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.02)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <TrendingUp size={24} color="var(--secondary)" />
-              <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Risk Trajectory</h3>
+              <BarIcon size={24} color="var(--primary)" />
+              <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>Decision Analytics</h3>
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-               <button style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '0.5rem', padding: '0.4rem 1rem', fontSize: '0.8rem', fontWeight: 600 }}>6 Months</button>
-            </div>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Approval vs Rejection</span>
           </div>
           <div style={{ height: '350px' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={riskTrends}>
-                <defs>
-                  <linearGradient id="colorRisk" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="month" stroke="var(--text-dim)" fontSize={12} tickLine={false} axisLine={false} tick={{ fontWeight: 600 }} />
-                <YAxis stroke="var(--text-dim)" fontSize={12} tickLine={false} axisLine={false} tick={{ fontWeight: 600 }} />
+              <BarChart data={decisionData}>
+                <XAxis dataKey="month" stroke="var(--text-dim)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--text-dim)" fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip 
-                  contentStyle={{ background: 'rgba(2, 1, 10, 0.95)', border: '1px solid var(--glass-border)', borderRadius: '1rem', backdropFilter: 'blur(20px)' }}
+                  contentStyle={{ background: 'rgba(2, 1, 10, 0.95)', border: '1px solid var(--glass-border)', borderRadius: '1rem' }}
                 />
-                <Area type="monotone" dataKey="risk" stroke="var(--primary)" fillOpacity={1} fill="url(#colorRisk)" strokeWidth={4} />
-              </AreaChart>
+                <Bar dataKey="approved" fill="var(--secondary)" radius={[4, 4, 0, 0]} barSize={20} />
+                <Bar dataKey="rejected" fill="var(--accent)" radius={[4, 4, 0, 0]} barSize={20} />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', marginTop: '2rem' }}>
+      <div className="responsive-grid" style={{ marginTop: '2rem' }}>
         <div className="glass-panel" style={{ padding: '2.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

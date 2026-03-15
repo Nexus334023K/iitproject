@@ -32,7 +32,7 @@ const Login = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="glass-panel"
-        style={{ width: '100%', maxWidth: '450px', padding: '3rem' }}
+        style={{ width: '100%', maxWidth: '450px', padding: 'min(3rem, 5vw)' }}
       >
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>

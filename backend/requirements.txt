@@ -7,3 +7,6 @@ requests
 tavily-python
 python-dotenv
 fpdf2
+google-genai
+langchain
+langchain-google-genai

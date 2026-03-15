@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { ShieldCheck, ArrowRight, Zap, Target, Landmark, BarChart3, Globe, Cpu, Shield, Search, ChevronRight } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Zap, Target, Landmark, BarChart3, Globe, Cpu, Shield, Search, ChevronRight, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Landing = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [selectedNode, setSelectedNode] = useState<any>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, 200]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
@@ -129,55 +130,77 @@ const Landing = () => {
       </AnimatePresence>
 
       {/* Navigation */}
-      <nav style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        padding: '2rem 6rem',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        background: 'rgba(2, 1, 10, 0.4)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid var(--glass-border)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ position: 'relative' }}>
-            <Zap size={32} color="var(--primary)" fill="var(--primary)" />
-            <motion.div 
-              animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }}
-              transition={{ repeat: Infinity, duration: 2 }}
-              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--primary)', borderRadius: '50%', filter: 'blur(10px)' }}
-            />
-          </div>
-          <span style={{ fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-1.5px', background: 'var(--grad-main)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>NEXUS</span>
+      <nav 
+        style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          padding: '1.5rem 2rem',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          background: 'rgba(2, 1, 10, 0.4)',
+          backdropFilter: 'blur(20px)',
+          borderBottom: '1px solid var(--glass-border)'
+        }}
+        className="landing-nav"
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+          <Zap size={28} color="var(--primary)" fill="var(--primary)" />
+          <span style={{ fontSize: '1.5rem', fontWeight: 900, background: 'var(--grad-main)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>NEXUS</span>
         </div>
-        <div style={{ display: 'flex', gap: '3rem', alignItems: 'center' }}>
+        
+        {/* Desktop Links */}
+        <div className="nav-links-desktop" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
           {['Intelligence', 'Swarm', 'Network', 'Security'].map(item => (
-            <Link key={item} to="/" style={{ color: 'var(--text-dim)', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{item}</Link>
+            <Link key={item} to="/" style={{ color: 'var(--text-dim)', textDecoration: 'none', fontWeight: 600, fontSize: '0.85rem', textTransform: 'uppercase' }}>{item}</Link>
           ))}
           <Link to="/login" style={{ textDecoration: 'none' }}>
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              style={{ 
-                padding: '0.8rem 2rem', 
-                fontSize: '0.9rem', 
-                fontWeight: 700, 
-                borderRadius: '2rem', 
-                background: 'var(--grad-main)', 
-                border: 'none', 
-                color: 'white',
-                boxShadow: '0 10px 20px -5px rgba(139, 92, 246, 0.5)',
-                cursor: 'pointer'
-              }}
-            >
-              Launch Neural Portal
-            </motion.button>
+            <motion.button style={{ padding: '0.7rem 1.5rem', borderRadius: '2rem', background: 'var(--grad-main)', border: 'none', color: 'white', fontWeight: 700, cursor: 'pointer' }}>Portal</motion.button>
           </Link>
         </div>
+
+        {/* Mobile Menu Toggle */}
+        <button 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="nav-menu-toggle"
+          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', display: 'none' }}
+        >
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              style={{
+                position: 'fixed',
+                top: '64px',
+                left: 0,
+                right: 0,
+                background: 'rgba(2, 1, 10, 0.98)',
+                padding: '2rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.5rem',
+                borderBottom: '1px solid var(--glass-border)',
+                backdropFilter: 'blur(20px)'
+              }}
+            >
+              {['Intelligence', 'Swarm', 'Network', 'Security'].map(item => (
+                <Link key={item} to="/" onClick={() => setIsMenuOpen(false)} style={{ color: 'white', textDecoration: 'none', fontWeight: 700, fontSize: '1.2rem' }}>{item}</Link>
+              ))}
+              <Link to="/login" onClick={() => setIsMenuOpen(false)} style={{ textDecoration: 'none' }}>
+                <button style={{ width: '100%', padding: '1rem', borderRadius: '1rem', background: 'var(--grad-main)', border: 'none', color: 'white', fontWeight: 800 }}>Portal</button>
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* Hero Section */}
@@ -215,23 +238,26 @@ const Landing = () => {
             Intelligence Redefined • Version 3.0
           </motion.div>
           
-          <h1 style={{ 
-            fontSize: '7.5rem', 
-            lineHeight: 0.9, 
-            fontWeight: 900,
-            letterSpacing: '-5px',
-            marginBottom: '2.5rem',
-            background: 'linear-gradient(to bottom, #fff 30%, rgba(255,255,255,0.2) 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            maxWidth: '1200px'
-          }}>
+          <h1 
+            className="hero-title"
+            style={{ 
+              fontSize: 'min(15vw, 7.5rem)', 
+              lineHeight: 0.9, 
+              fontWeight: 900,
+              letterSpacing: '-5px',
+              marginBottom: '2.5rem',
+              background: 'linear-gradient(to bottom, #fff 30%, rgba(255,255,255,0.2) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              maxWidth: '1200px'
+            }}
+          >
             Automate the Human <br/> Element of Risk
           </h1>
 
           <p style={{ 
             color: 'var(--text-dim)', 
-            fontSize: '1.6rem', 
+            fontSize: 'min(5vw, 1.6rem)', 
             maxWidth: '850px', 
             margin: '0 auto 4rem auto', 
             lineHeight: 1.4,
@@ -303,7 +329,7 @@ const Landing = () => {
           <p style={{ color: 'var(--text-dim)', fontSize: '1.3rem', maxWidth: '600px', margin: '0 auto' }}>NEXUS leverages four autonomous modules to ensure 360° credit visibility.</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '3rem' }}>
+        <div className="hero-stats" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
           {nodes.map(node => (
             <IntelligenceNode 
               key={node.title}
@@ -315,24 +341,24 @@ const Landing = () => {
       </section>
 
       {/* Modern Footer */}
-      <footer style={{ padding: '8rem 6rem', borderTop: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <footer style={{ padding: '6rem 2rem', borderTop: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)' }}>
+        <div className="responsive-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '4rem' }}>
           <div style={{ maxWidth: '400px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
               <Zap size={32} color="var(--primary)" fill="var(--primary)" />
-              <span style={{ fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-1,5px' }}>NEXUS</span>
+              <span style={{ fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-1.5px' }}>NEXUS</span>
             </div>
             <p style={{ color: 'var(--text-dim)', lineHeight: 1.6, fontSize: '1.1rem' }}>
               The world's most advanced AI-driven credit appraisal infrastructure. Built for high-stakes decisioning.
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '4rem', flex: 1 }}>
             <FooterColumn title="Platform" links={['Neural Link', 'Data Room', 'Appraisal', 'Archive']} />
             <FooterColumn title="Security" links={['Encryption', 'Compliance', 'Privacy', 'Nodes']} />
             <FooterColumn title="Company" links={['About', 'Network', 'Support', 'Legal']} />
           </div>
         </div>
-        <div style={{ marginTop: '6rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.03)', display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '0.9rem' }}>
+        <div style={{ marginTop: '6rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.03)', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', color: 'var(--text-dim)', fontSize: '0.9rem', textAlign: 'center' }}>
           <p>© 2026 NEXUS Intelligence Swarm. All Rights Reserved.</p>
           <div style={{ display: 'flex', gap: '2rem' }}>
             <span>Privacy Policy</span>

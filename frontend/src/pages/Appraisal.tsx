@@ -96,7 +96,7 @@ const Appraisal = () => {
       </header>
 
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '2rem' }}>
+      <div className="responsive-grid">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
           <div className="glass-panel" style={{ minHeight: '500px', position: 'relative', overflow: 'hidden', padding: '2.5rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--glass-border)' }}>
@@ -182,9 +182,15 @@ const Appraisal = () => {
                   </div>
                 </div>
               ) : analysisData ? (
-                <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '3rem', height: '100%' }}>
-                  <RiskChart scores={analysisData.scores} />
+                <div className="responsive-grid" style={{ height: 'auto', minHeight: '100%' }}>
+                  <div style={{ minHeight: '300px' }}>
+                    <RiskChart scores={analysisData.scores} />
+                  </div>
                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '1.5rem' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.2rem', borderRadius: '1rem', borderLeft: '4px solid var(--primary)' }}>
+                      <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem', fontWeight: 700 }}>AI Executive Summary</p>
+                      <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.5, color: 'white' }}>{analysisData.explanation}</p>
+                    </div>
                     <MetricItem label="Character" score={analysisData.scores.character} />
                     <MetricItem label="Capacity" score={analysisData.scores.capacity} />
                     <MetricItem label="Capital" score={analysisData.scores.capital} />

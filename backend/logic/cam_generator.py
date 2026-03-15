@@ -37,9 +37,9 @@ class CAMGenerator:
         self.pdf.cell(50, 8, "Status:", border=0)
         self.pdf.cell(0, 8, self.data.get("recommendation", "N/A"), ln=True)
         self.pdf.cell(50, 8, "Suggested Limit:", border=0)
-        self.pdf.cell(0, 8, f"INR {self.data.get('suggested_limit', 0):,.2f}", ln=True)
+        self.pdf.cell(0, 8, f"INR {float(self.data.get('suggested_limit', 0)):,.2f}", ln=True)
         self.pdf.cell(50, 8, "Interest Rate:", border=0)
-        self.pdf.cell(0, 8, f"{self.data.get('interest_rate', 0)}% p.a.", ln=True)
+        self.pdf.cell(0, 8, f"{self.data.get('interest_rate', 'N/A')}% p.a.", ln=True)
         
         self.pdf.ln(5)
         self.pdf.multi_cell(0, 10, f"Rationale: {self.data.get('explanation', '')}")
